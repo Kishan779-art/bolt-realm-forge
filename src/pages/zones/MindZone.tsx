@@ -1,14 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import AOS from 'aos';
 import { Button } from '@/components/ui/button';
 import { useRealm } from '@/contexts/RealmContext';
-import { Plus, Brain, Edit, Trash2 } from 'lucide-react';
+import { Plus, Brain, Edit, Trash2, Mic } from 'lucide-react';
 import { Note } from '@/types/realm';
+import { PageTransition, GlowCard, TypewriterText, ParticleField } from '@/components/ui/MotionComponents';
+import { VoiceInput } from '@/components/ui/VoiceInput';
 
 export default function MindZone() {
   const { state, addNote, updateNote, deleteNote, addXP } = useRealm();
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [noteForm, setNoteForm] = useState({ title: '', content: '' });
+  const [isListening, setIsListening] = useState(false);
+  const [showTypewriter, setShowTypewriter] = useState(false);
+
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out-cubic',
+      once: true,
+    });
+  }, []);
 
   const handleCreateNote = () => {
     if (noteForm.title.trim() && noteForm.content.trim()) {
@@ -16,6 +30,8 @@ export default function MindZone() {
       addXP(10); // Reward for creating a note
       setNoteForm({ title: '', content: '' });
       setIsCreating(false);
+      setShowTypewriter(true);
+      setTimeout(() => setShowTypewriter(false), 3000);
     }
   };
 
@@ -45,162 +61,278 @@ export default function MindZone() {
     addXP(2); // Small reward for organization
   };
 
+  const handleVoiceResult = (text: string) => {
+    // Parse voice input for commands
+    if (text.toLowerCase().includes('create') || text.toLowerCase().includes('note')) {
+      const content = text.replace(/create|note|new/gi, '').trim();
+      const title = content.split(' ').slice(0, 4).join(' ') || 'Voice Note';
+      setNoteForm({ title, content });
+      setIsCreating(true);
+    } else {
+      // Use the text as note content
+      setNoteForm(prev => ({ 
+        ...prev, 
+        content: prev.content ? `${prev.content}\n\n${text}` : text 
+      }));
+    }
+    setIsListening(false);
+  };
+
   return (
-    <div className="min-h-screen bg-background pt-20 pb-12">
-      <div className="container mx-auto px-6">
-        {/* Zone Header */}
-        <div className="text-center mb-12 animate-cyber-slide">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <Brain className="w-12 h-12 text-cyber-blue animate-glow-pulse" />
-            <h1 className="font-orbitron font-black text-5xl bg-gradient-cyber bg-clip-text text-transparent">
-              MIND ZONE
-            </h1>
-          </div>
-          <p className="font-exo text-lg text-muted-foreground max-w-2xl mx-auto">
-            Capture and organize your thoughts in floating digital containers
-          </p>
-        </div>
-
-        {/* Action Bar */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-3">
-            <div className="bg-card/50 backdrop-blur-sm px-4 py-2 rounded-lg border border-cyber-blue/30">
-              <span className="font-orbitron text-sm font-bold text-cyber-blue">
-                {state.notes.length} Thoughts Captured
-              </span>
-            </div>
-          </div>
-          
-          <Button
-            variant="cyber"
-            onClick={() => setIsCreating(true)}
-            className="gap-2"
-            disabled={isCreating || editingId !== null}
+    <PageTransition>
+      <div className="min-h-screen bg-background pt-20 pb-12 relative">
+        {/* Background particles */}
+        <ParticleField count={25} />
+        
+        <div className="container mx-auto px-6">
+          {/* Zone Header */}
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
           >
-            <Plus className="w-4 h-4" />
-            New Thought
-          </Button>
-        </div>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <motion.div
+                animate={{
+                  rotate: [0, 10, -10, 0],
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{ duration: 4, repeat: Infinity }}
+              >
+                <Brain className="w-12 h-12 text-cyber-blue animate-glow-pulse" />
+              </motion.div>
+              <motion.h1 
+                className="font-orbitron font-black text-5xl bg-gradient-cyber bg-clip-text text-transparent"
+                animate={{
+                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                MIND ZONE
+              </motion.h1>
+            </div>
+            
+            {showTypewriter ? (
+              <TypewriterText
+                text="New thought captured in the digital consciousness..."
+                className="font-exo text-lg text-cyber-blue max-w-2xl mx-auto"
+              />
+            ) : (
+              <motion.p 
+                className="font-exo text-lg text-muted-foreground max-w-2xl mx-auto"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                Capture and organize your thoughts in floating digital containers
+              </motion.p>
+            )}
+          </motion.div>
 
-        {/* Create/Edit Form */}
-        {(isCreating || editingId) && (
-          <div className="mb-8 animate-scale-in">
-            <div className="bg-card/80 backdrop-blur-sm p-6 rounded-xl border border-cyber-blue/30 shadow-glow-blue">
-              <h3 className="font-orbitron font-bold text-lg mb-4 text-cyber-blue">
-                {isCreating ? 'Capture New Thought' : 'Edit Thought'}
-              </h3>
+          {/* Enhanced Action Bar */}
+          <motion.div 
+            className="flex justify-between items-center mb-8"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
+            <div className="flex items-center gap-3">
+              <GlowCard className="px-4 py-2">
+                <motion.span 
+                  className="font-orbitron text-sm font-bold text-cyber-blue"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  {state.notes.length} Thoughts Captured
+                </motion.span>
+              </GlowCard>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              {/* Voice Input */}
+              <VoiceInput
+                onResult={handleVoiceResult}
+                isListening={isListening}
+                onToggle={() => setIsListening(!isListening)}
+              />
               
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Thought title..."
-                  value={noteForm.title}
-                  onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full bg-input border border-border rounded-lg px-4 py-3 font-exo focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                />
-                
-                <textarea
-                  placeholder="Your mind's content..."
-                  value={noteForm.content}
-                  onChange={(e) => setNoteForm(prev => ({ ...prev, content: e.target.value }))}
-                  rows={6}
-                  className="w-full bg-input border border-border rounded-lg px-4 py-3 font-exo focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
-                />
-                
-                <div className="flex gap-3">
-                  <Button
-                    variant="cyber"
-                    onClick={isCreating ? handleCreateNote : handleUpdateNote}
-                    disabled={!noteForm.title.trim() || !noteForm.content.trim()}
-                  >
-                    {isCreating ? 'Capture' : 'Update'} Thought
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setIsCreating(false);
-                      setEditingId(null);
-                      setNoteForm({ title: '', content: '' });
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  variant="cyber"
+                  onClick={() => setIsCreating(true)}
+                  className="gap-2"
+                  disabled={isCreating || editingId !== null}
+                >
+                  <Plus className="w-4 h-4" />
+                  New Thought
+                </Button>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* Enhanced Create/Edit Form */}
+          <AnimatePresence>
+            {(isCreating || editingId) && (
+              <motion.div 
+                className="mb-8"
+                initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              >
+                <GlowCard className="p-6 shadow-glow-blue">
+                  <motion.h3 
+                    className="font-orbitron font-bold text-lg mb-4 text-cyber-blue"
+                    animate={{
+                      textShadow: [
+                        '0 0 10px hsl(var(--cyber-blue) / 0.5)',
+                        '0 0 20px hsl(var(--cyber-blue) / 0.8)',
+                        '0 0 10px hsl(var(--cyber-blue) / 0.5)'
+                      ]
                     }}
+                    transition={{ duration: 2, repeat: Infinity }}
                   >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Notes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {state.notes.map((note, index) => (
-            <div
-              key={note.id}
-              className="bg-card/60 backdrop-blur-sm p-6 rounded-xl border border-cyber-violet/30 hover:border-cyber-violet hover:shadow-glow-violet transition-all duration-500 animate-float group"
-              style={{ 
-                animationDelay: `${index * 100}ms`,
-                animationDuration: `${3 + (index % 3)}s`
-              }}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="font-orbitron font-bold text-lg text-primary truncate flex-1">
-                  {note.title}
-                </h3>
-                
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEditNote(note)}
-                    className="text-cyber-blue hover:text-cyber-blue hover:bg-cyber-blue/20"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
+                    {isCreating ? 'Capture New Thought' : 'Edit Thought'}
+                  </motion.h3>
                   
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteNote(note.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/20"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <p className="text-muted-foreground font-exo text-sm mb-4 line-clamp-4">
-                {note.content}
-              </p>
-              
-              <div className="text-xs text-muted-foreground font-exo">
-                Created {new Date(note.createdAt).toLocaleDateString()}
-              </div>
-            </div>
-          ))}
-        </div>
+                  <div className="space-y-4">
+                    <motion.input
+                      type="text"
+                      placeholder="Thought title..."
+                      value={noteForm.title}
+                      onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full bg-input border border-border rounded-lg px-4 py-3 font-exo focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                    />
+                    
+                    <motion.textarea
+                      placeholder="Your mind's content..."
+                      value={noteForm.content}
+                      onChange={(e) => setNoteForm(prev => ({ ...prev, content: e.target.value }))}
+                      rows={6}
+                      className="w-full bg-input border border-border rounded-lg px-4 py-3 font-exo focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                    />
+                    
+                    <motion.div 
+                      className="flex gap-3"
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <Button
+                        variant="cyber"
+                        onClick={isCreating ? handleCreateNote : handleUpdateNote}
+                        disabled={!noteForm.title.trim() || !noteForm.content.trim()}
+                      >
+                        {isCreating ? 'Capture' : 'Update'} Thought
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsCreating(false);
+                          setEditingId(null);
+                          setNoteForm({ title: '', content: '' });
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </motion.div>
+                  </div>
+                </GlowCard>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Empty State */}
-        {state.notes.length === 0 && !isCreating && (
-          <div className="text-center py-16 animate-fade-in">
-            <Brain className="w-24 h-24 text-muted-foreground mx-auto mb-6 opacity-50" />
-            <h3 className="font-orbitron font-bold text-xl text-muted-foreground mb-3">
-              Your Mind Space Awaits
-            </h3>
-            <p className="font-exo text-muted-foreground mb-6 max-w-md mx-auto">
-              Capture your first thought and begin building your digital mind palace
-            </p>
-            <Button
-              variant="cyber"
-              onClick={() => setIsCreating(true)}
-              className="gap-2"
+          {/* Enhanced Notes Grid */}
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            {state.notes.map((note, index) => (
+              <motion.div
+                key={note.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.02, rotateY: 5 }}
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+              >
+                <GlowCard className="p-6 group h-full">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="font-orbitron font-bold text-lg text-primary truncate flex-1">
+                      {note.title}
+                    </h3>
+                    
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditNote(note)}
+                        className="text-cyber-blue hover:text-cyber-blue hover:bg-cyber-blue/20"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteNote(note.id)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/20"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <p className="text-muted-foreground font-exo text-sm mb-4 line-clamp-4">
+                    {note.content}
+                  </p>
+                  
+                  <div className="text-xs text-muted-foreground font-exo">
+                    Created {new Date(note.createdAt).toLocaleDateString()}
+                  </div>
+                </GlowCard>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Empty State */}
+          {state.notes.length === 0 && !isCreating && (
+            <motion.div 
+              className="text-center py-16"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5, duration: 1 }}
             >
-              <Plus className="w-4 h-4" />
-              Capture First Thought
-            </Button>
-          </div>
-        )}
+              <Brain className="w-24 h-24 text-muted-foreground mx-auto mb-6 opacity-50" />
+              <h3 className="font-orbitron font-bold text-xl text-muted-foreground mb-3">
+                Your Mind Space Awaits
+              </h3>
+              <p className="font-exo text-muted-foreground mb-6 max-w-md mx-auto">
+                Capture your first thought and begin building your digital mind palace
+              </p>
+              <Button
+                variant="cyber"
+                onClick={() => setIsCreating(true)}
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Capture First Thought
+              </Button>
+            </motion.div>
+          )}
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

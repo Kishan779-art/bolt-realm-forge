@@ -105,6 +105,33 @@ export default {
 				'portal-spin': {
 					'0%': { transform: 'rotate(0deg) scale(0.8)', opacity: '0.5' },
 					'100%': { transform: 'rotate(360deg) scale(1)', opacity: '1' }
+				},
+				'typewriter': {
+					'0%': { width: '0' },
+					'100%': { width: '100%' }
+				},
+				'particle-float': {
+					'0%, 100%': { transform: 'translate(0, 0) rotate(0deg)', opacity: '0.3' },
+					'33%': { transform: 'translate(30px, -30px) rotate(120deg)', opacity: '0.7' },
+					'66%': { transform: 'translate(-20px, 20px) rotate(240deg)', opacity: '0.5' }
+				},
+				'warp-speed': {
+					'0%': { transform: 'scale(1) perspective(1000px) rotateY(0deg)', filter: 'blur(0px)' },
+					'50%': { transform: 'scale(0.1) perspective(1000px) rotateY(180deg)', filter: 'blur(10px)' },
+					'100%': { transform: 'scale(1) perspective(1000px) rotateY(360deg)', filter: 'blur(0px)' }
+				},
+				'hologram-flicker': {
+					'0%, 100%': { opacity: '1', transform: 'skew(0deg)' },
+					'2%': { opacity: '0.8', transform: 'skew(1deg)' },
+					'4%': { opacity: '1', transform: 'skew(0deg)' },
+					'8%': { opacity: '0.9', transform: 'skew(-1deg)' },
+					'10%': { opacity: '1', transform: 'skew(0deg)' }
+				},
+				'data-stream': {
+					'0%': { transform: 'translateY(100vh)', opacity: '0' },
+					'10%': { opacity: '1' },
+					'90%': { opacity: '1' },
+					'100%': { transform: 'translateY(-100vh)', opacity: '0' }
 				}
 			},
 			animation: {
@@ -113,7 +140,12 @@ export default {
 				'float': 'float 3s ease-in-out infinite',
 				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
 				'cyber-slide': 'cyber-slide 0.8s ease-out',
-				'portal-spin': 'portal-spin 2s ease-in-out infinite'
+				'portal-spin': 'portal-spin 2s ease-in-out infinite',
+				'typewriter': 'typewriter 2s steps(40, end)',
+				'particle-float': 'particle-float 6s ease-in-out infinite',
+				'warp-speed': 'warp-speed 1.5s ease-in-out',
+				'hologram-flicker': 'hologram-flicker 3s ease-in-out infinite',
+				'data-stream': 'data-stream 4s linear infinite'
 			}
 		}
 	},
