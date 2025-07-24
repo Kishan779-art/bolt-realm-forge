@@ -12,12 +12,20 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
+    <div className="min-h-screen flex items-center justify-center bg-background pt-20">
+      <div className="text-center animate-cyber-slide">
+        <div className="text-8xl mb-6 animate-glow-pulse">🌌</div>
+        <h1 className="font-orbitron font-black text-6xl mb-4 bg-gradient-cyber bg-clip-text text-transparent">
+          404
+        </h1>
+        <p className="font-exo text-xl text-muted-foreground mb-8">
+          This zone does not exist in the BOLT Realm
+        </p>
+        <a 
+          href="/" 
+          className="inline-flex items-center gap-2 bg-gradient-cyber text-foreground font-orbitron font-bold px-6 py-3 rounded-lg shadow-glow-blue hover:shadow-glow-intense hover:scale-105 transition-all duration-300"
+        >
+          Return to Realm Map
         </a>
       </div>
     </div>

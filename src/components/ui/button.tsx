@@ -5,25 +5,29 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow-blue hover:shadow-glow-intense",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-glow-purple",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Cyberpunk variants
+        cyber: "bg-gradient-cyber text-foreground font-orbitron font-bold shadow-glow-blue hover:shadow-glow-intense hover:scale-105 border border-cyber-blue/30",
+        neon: "bg-gradient-neon text-foreground font-orbitron font-bold shadow-glow-purple hover:shadow-glow-intense hover:scale-105 border border-cyber-purple/30",
+        portal: "bg-gradient-hologram backdrop-blur-sm text-foreground font-orbitron border border-cyber-violet/50 hover:border-cyber-violet hover:shadow-glow-violet hover:scale-105",
+        zone: "bg-card/80 backdrop-blur-md text-card-foreground border border-cyber-blue/30 hover:border-cyber-blue hover:shadow-glow-blue hover:scale-105 transition-all duration-500 group",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
+        xl: "h-14 rounded-lg px-12 text-lg",
         icon: "h-10 w-10",
+        zone: "h-32 w-full p-6 rounded-xl",
       },
     },
     defaultVariants: {
